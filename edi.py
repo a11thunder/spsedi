@@ -41,7 +41,7 @@ for line in datalist:
 		if line[colUPC] not in productlist:
 			productlist.append(line[colUPC])
 			productname.append(line[colProductName])
-			pricelist.append(line[colUnitPrice])
+			pricelist.append(float(line[colUnitPrice]))
 
 # Initialize item quantity count 2D table
 itemizedqty = [len(productlist)*[0] for i in range(len(orderlist))]
@@ -56,10 +56,14 @@ for line in datalist:
 			if line[colUPC] == productlist[i]:
 				itemizedqty[iorder][i] = int(line[colQty].strip())
 
+ordertotal = len(orderlist) * [0.0]
 itemtally = len(productlist) * [0]
-for iprod in range(len(productlist)):
-	for iorder in range(len(orderlist)):
+for iorder in range(len(orderlist)):
+	tempsum = 0.0
+	for iprod in range(len(productlist)):	
+		tempsum = tempsum + itemizedqty[iorder][iprod] * pricelist[iprod]
 		itemtally[iprod] = itemtally[iprod] + itemizedqty[iorder][iprod]
+	ordertotal[iorder] = tempsum
 
 print '\n'+' === Products Ordered ===\n'	
 for iprod in range(len(productlist)):
@@ -76,6 +80,7 @@ csvbuffer = []
 csvbuffer.append('PO Number')
 for product in productname:
 	csvbuffer.append(product)
+csvbuffer.append('Total')
 csvbuffer.append('Store ID')
 csvbuffer.append('City')
 csvbuffer.append('State')
@@ -85,6 +90,7 @@ for iorder in range(len(orderlist)):
 	csvbuffer.append(orderlist[iorder])
 	for iprod in range(len(productlist)):
 		csvbuffer.append(str(itemizedqty[iorder][iprod]))
+	csvbuffer.append("%.2f" % round(ordertotal[iorder],2))
 	csvbuffer.append(storeID[iorder])
 	csvbuffer.append(storeCity[iorder])
 	csvbuffer.append(storeState[iorder])
